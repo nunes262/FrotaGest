@@ -1,0 +1,21 @@
+# Sistema e editores
+.DS_Store
+.idea/
+.vscode/
+.claude/
+
+# Python
+.venv/
+__pycache__/
+.pytest_cache/
+
+# Node
+node_modules/
+dist/
+
+# Dados locais: banco, fotos dos comprovantes e segredos
+*.db
+uploads/
+.env
+.env.local
+vapid_private.pem

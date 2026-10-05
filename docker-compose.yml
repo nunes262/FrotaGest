@@ -1,0 +1,30 @@
+# Sobe Postgres + API + worker de rastreadores.
+# Uso: docker compose up --build
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: frotagest
+      POSTGRES_PASSWORD: frotagest
+      POSTGRES_DB: frotagest
+    ports: ["5432:5432"]
+    volumes: [pgdata:/var/lib/postgresql/data]
+
+  api:
+    build: ./backend
+    env_file: ./backend/.env
+    environment:
+      DATABASE_URL: postgresql+psycopg://frotagest:frotagest@db:5432/frotagest
+    ports: ["8000:8000"]
+    depends_on: [db]
+
+  worker:
+    build: ./backend
+    command: python -m app.workers.poller
+    env_file: ./backend/.env
+    environment:
+      DATABASE_URL: postgresql+psycopg://frotagest:frotagest@db:5432/frotagest
+    depends_on: [db]
+
+volumes:
+  pgdata:
