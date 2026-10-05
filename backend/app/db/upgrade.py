@@ -32,7 +32,8 @@ def add_missing_columns(engine: Engine) -> None:
                 conn.execute(text(f"ALTER TABLE {quote(table.name)} ADD COLUMN {quote(column.name)} {ddl_type}"))
                 log.info("Coluna criada: %s.%s", table.name, column.name)
 
-    if engine.dialect.name == "postgresql":
+    # Banco novo: o create_all cria o tipo já com todos os valores
+    if engine.dialect.name == "postgresql" and inspector.has_table("deliveries"):
         # No Postgres o status da entrega é um tipo ENUM: o valor novo precisa ser criado fora de transação
         with engine.connect().execution_options(isolation_level="AUTOCOMMIT") as conn:
             conn.execute(text("ALTER TYPE deliverystatus ADD VALUE IF NOT EXISTS 'failed'"))
