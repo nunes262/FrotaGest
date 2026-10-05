@@ -78,6 +78,32 @@ docker compose up --build
 docker compose exec api python -m app.seed
 ```
 
+## 4. Publicar na internet (Render)
+
+O `Dockerfile` da raiz gera uma imagem só: compila o painel e a API passa a servi-lo, tudo no mesmo endereço.
+
+1. Suba o código para o GitHub.
+2. No [Render](https://render.com), entre com a conta do GitHub e vá em **New > Blueprint**.
+3. Escolha o repositório. O `render.yaml` cria o banco Postgres e o serviço web; confirme.
+4. Ao terminar, o painel fica em `https://frotagest-XXXX.onrender.com`. Cada push na `main` publica de novo.
+
+Variáveis de ambiente usadas na hospedagem (além das do `.env.example`):
+
+| Variável            | Para que serve                                                                 |
+|---------------------|--------------------------------------------------------------------------------|
+| `STATIC_DIR`        | Pasta do build do painel que a API serve (a imagem já define)                  |
+| `RUN_POLLER`        | `true` roda a coleta dos rastreadores dentro da API, sem worker separado      |
+| `SEED_ON_START`     | `true` cria os dados de exemplo ao subir, se o banco estiver vazio             |
+| `VAPID_PRIVATE_KEY` | Chave do Web Push em PEM, para ela não mudar a cada reinício                  |
+| `DEV_TOOLS`         | Liga o rastreador simulado (na API e, no build, no painel)                     |
+
+Limites do plano gratuito do Render: o serviço dorme depois de 15 minutos sem acesso (o primeiro acesso demora
+cerca de 1 minuto), o disco não é permanente (fotos de comprovantes somem a cada deploy ou reinício) e o Postgres
+gratuito expira em 30 dias. Para uso de verdade, troque para um plano pago com disco ou use um Postgres externo
+(Neon, Supabase) colando a URL em `DATABASE_URL`.
+
+Com `SEED_ON_START=true` os logins de exemplo ficam públicos: troque as senhas ou desligue depois do primeiro uso.
+
 ## O que já está pronto
 
 **Backend**

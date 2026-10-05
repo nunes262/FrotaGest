@@ -1,0 +1,34 @@
+# Blueprint do Render: no painel, New > Blueprint e escolha este repositório.
+services:
+  - type: web
+    name: frotagest
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /api/health
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: frotagest-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      # A coleta dos rastreadores roda dentro da API (o plano gratuito não tem worker)
+      - key: RUN_POLLER
+        value: "true"
+      # Cria a empresa e os logins de exemplo se o banco estiver vazio. Troque as senhas depois.
+      - key: SEED_ON_START
+        value: "true"
+      # Rastreador simulado e opções de desenvolvedor; use false com rastreadores de verdade
+      - key: DEV_TOOLS
+        value: "true"
+      # Opcional: gere com `python -c "from py_vapid import Vapid; v=Vapid(); v.generate_keys(); print(v.private_pem().decode())"`
+      # e cole aqui para as notificações continuarem valendo depois de cada reinício
+      - key: VAPID_PRIVATE_KEY
+        sync: false
+
+databases:
+  - name: frotagest-db
+    plan: free
+    databaseName: frotagest
+    user: frotagest

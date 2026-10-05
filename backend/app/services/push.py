@@ -25,8 +25,12 @@ def vapid() -> Vapid:
     inscritos deixariam de receber)."""
     global _vapid
     if _vapid is None:
-        path = Path(get_settings().vapid_key_file)
-        if path.is_file():
+        settings = get_settings()
+        path = Path(settings.vapid_key_file)
+        if settings.vapid_private_key:
+            # Painéis de variáveis de ambiente costumam guardar o PEM numa linha só, com \n literal
+            _vapid = Vapid.from_pem(settings.vapid_private_key.replace("\\n", "\n").encode())
+        elif path.is_file():
             _vapid = Vapid.from_file(str(path))
         else:
             _vapid = Vapid()
