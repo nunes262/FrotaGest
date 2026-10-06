@@ -20,6 +20,11 @@ const Stack = styled.div`
   display: flex;
   flex-direction: column;
   gap: 8px;
+
+  /* Acima da barra de abas do celular */
+  @media ${({ theme }) => theme.media.compact} {
+    bottom: calc(${({ theme }) => theme.tabBarHeight} + 16px + env(safe-area-inset-bottom));
+  }
 `;
 
 const Item = styled.div<{ $tone: Toast['tone'] }>`

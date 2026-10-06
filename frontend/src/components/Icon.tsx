@@ -19,6 +19,7 @@ const paths = {
   alert: 'M12 4l9 16H3z M12 10v4 M12 17h.01',
   plus: 'M12 5v14 M5 12h14',
   close: 'M6 6l12 12 M18 6L6 18',
+  menu: 'M4 7h16 M4 12h16 M4 17h16',
   trash: 'M4 7h16 M10 11v6 M14 11v6 M6 7l1 13h10l1-13 M9 7V4h6v3',
   search: 'M11 18a7 7 0 1 0 0-14 7 7 0 0 0 0 14z M20 20l-4-4',
   edit: 'M4 20h4L19 9l-4-4L4 16z M14 6l4 4',

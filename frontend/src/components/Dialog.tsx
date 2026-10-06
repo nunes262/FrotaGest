@@ -1,9 +1,14 @@
-import { useEffect, useId, useRef, type ReactNode } from 'react';
-import styled from 'styled-components';
+import { useEffect, useId, useRef, type MouseEvent, type ReactNode } from 'react';
+import styled, { css, keyframes } from 'styled-components';
 import { Icon } from './Icon';
 import { IconButton } from './ui';
 
-const Box = styled.dialog<{ $size: 'default' | 'small' }>`
+const slideUp = keyframes`
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+`;
+
+const Box = styled.dialog<{ $size: 'default' | 'small'; $sheet: boolean }>`
   width: min(${({ $size }) => ($size === 'small' ? 480 : 760)}px, calc(100vw - 32px));
   max-height: calc(100vh - 32px);
   padding: 0;
@@ -15,6 +20,18 @@ const Box = styled.dialog<{ $size: 'default' | 'small' }>`
   overflow: auto;
 
   &::backdrop { background: rgba(0, 0, 0, 0.4); }
+
+  /* Folha que sobe da borda de baixo (menu do celular) */
+  ${({ $sheet }) =>
+    $sheet &&
+    css`
+      width: 100%;
+      max-width: 100%;
+      max-height: 85dvh;
+      margin: auto 0 0;
+      border-radius: 16px 16px 0 0;
+      &[open] { animation: ${slideUp} 200ms ease-out; }
+    `}
 `;
 
 const Header = styled.header`
@@ -32,8 +49,9 @@ const Header = styled.header`
   h2 { font-size: ${({ theme }) => theme.font.size.xl}; }
 `;
 
-const Body = styled.div`
+const Body = styled.div<{ $sheet: boolean }>`
   padding: ${({ theme }) => theme.space(3)};
+  ${({ $sheet }) => $sheet && css`padding-bottom: calc(24px + env(safe-area-inset-bottom));`}
 `;
 
 interface Props {
@@ -43,10 +61,12 @@ interface Props {
   children: ReactNode;
   /** 'small' para avisos e confirmações curtas */
   size?: 'default' | 'small';
+  /** 'sheet' sobe da borda de baixo e fecha ao tocar fora (menu do celular) */
+  placement?: 'center' | 'sheet';
 }
 
 /** Janela modal com o <dialog> nativo: prende o foco e fecha com Esc. O conteúdo só existe enquanto está aberta. */
-export function Dialog({ open, title, onClose, children, size = 'default' }: Props) {
+export function Dialog({ open, title, onClose, children, size = 'default', placement = 'center' }: Props) {
   const ref = useRef<HTMLDialogElement>(null);
   const titleId = useId();
 
@@ -57,8 +77,14 @@ export function Dialog({ open, title, onClose, children, size = 'default' }: Pro
     if (!open && dialog.open) dialog.close();
   }, [open]);
 
+  const sheet = placement === 'sheet';
+  // O conteúdo cobre a folha inteira: clique que chega no próprio <dialog> foi no fundo escuro
+  const onBackdrop = (e: MouseEvent<HTMLDialogElement>) => {
+    if (sheet && e.target === e.currentTarget) onClose();
+  };
+
   return (
-    <Box ref={ref} $size={size} aria-labelledby={titleId} onClose={onClose}>
+    <Box ref={ref} $size={size} $sheet={sheet} aria-labelledby={titleId} onClose={onClose} onClick={onBackdrop}>
       {open && (
         <>
           <Header>
@@ -67,7 +93,7 @@ export function Dialog({ open, title, onClose, children, size = 'default' }: Pro
               <Icon name="close" />
             </IconButton>
           </Header>
-          <Body>{children}</Body>
+          <Body $sheet={sheet}>{children}</Body>
         </>
       )}
     </Box>

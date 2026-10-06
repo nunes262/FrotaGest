@@ -39,6 +39,9 @@ export const theme = {
     card: '0 0 4px rgba(0, 0, 0, 0.16)',
     red: '0 0 4px rgba(204, 0, 0, 0.48)',
   },
+  // Até essa largura (celular e tablet) o menu lateral vira uma barra de abas embaixo
+  media: { compact: '(max-width: 900px)' },
+  tabBarHeight: '64px',
 } as const;
 
 export type AppTheme = typeof theme;
